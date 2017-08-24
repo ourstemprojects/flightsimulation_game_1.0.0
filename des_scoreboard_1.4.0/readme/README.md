@@ -13,7 +13,7 @@ Included in the scoreboard display are:
 The player's actual profile image is stored by the `profiler` program in its directory structure and can be made available to the player upon request.
 
 
-<br>
+
 ## QUEUE MANAGEMENT CONTROLS
 ---
 Queue management controls are built into the queue table, enabling a game administrator to:
@@ -33,15 +33,15 @@ If a player is no longer available, or no longer wants to participate, click the
 **Note:** the player's record **is not deleted** from the database, but rather, their status is updated to DELETED.
 
 
-<br>
+
 ## DESIGN
 ---
 The flow diagram below illustrates the program's design and logic.
 <br>
-![scoreboard design](flow_scoreboard.png)
+![scoreboard design](flow_scoreboard.png)  
 
 
-<br>
+
 ## START THE PROGRAM
 ---
 Follow the steps below to start the scoreboard:
