@@ -11785,7 +11785,6 @@ div#notebook {
 <li>a PNG image showing the game's target profile overlaid with the most recent player's cycled profile; allowing the player to see how they did</li>
 </ul>
 <p>The player's actual profile image is stored by the <code>profiler</code> program in its directory structure and can be made available to the player upon request.</p>
-<p><br></p>
 <h2 id="QUEUE-MANAGEMENT-CONTROLS">QUEUE MANAGEMENT CONTROLS<a class="anchor-link" href="#QUEUE-MANAGEMENT-CONTROLS">&#194;&#182;</a></h2><hr>
 <p>Queue management controls are built into the queue table, enabling a game administrator to:</p>
 <ul>
@@ -11797,21 +11796,16 @@ div#notebook {
 <h3 id="Moving-a-player-to-the-back-of-the-queue">Moving a player to the back of the queue<a class="anchor-link" href="#Moving-a-player-to-the-back-of-the-queue">&#194;&#182;</a></h3><p>If a player in the queue table is not available for play, they can be moved to the back of the queue so the next player can play the game. To move a player to the back of the queue list, click the player's name.</p>
 <h3 id="Remove-a-player-from-the-queue">Remove a player from the queue<a class="anchor-link" href="#Remove-a-player-from-the-queue">&#194;&#182;</a></h3><p>If a player is no longer available, or no longer wants to participate, click the player's avatar image and click <code>YES</code> to the confirmation prompt to remove them from the queue.</p>
 <p><strong>Note:</strong> the player's record <strong>is not deleted</strong> from the database, but rather, their status is updated to DELETED.</p>
-<p><br></p>
 <h2 id="DESIGN">DESIGN<a class="anchor-link" href="#DESIGN">&#194;&#182;</a></h2><hr>
-<p>The flow diagram below illustrates the program's design and logic.
-<br>
-<img src="flow_scoreboard.png" alt="scoreboard design"></p>
-<p><br></p>
+<p>The flow diagram below illustrates the program's design and logic.</p>
+<p><img src="flow_scoreboard.png" alt="scoreboard design"></p>
 <h2 id="START-THE-PROGRAM">START THE PROGRAM<a class="anchor-link" href="#START-THE-PROGRAM">&#194;&#182;</a></h2><hr>
 <p>Follow the steps below to start the scoreboard:</p>
 <p>1) Start the program by entering these commands into the CLI:</p>
 <div class="highlight"><pre><span></span>$ <span class="nb">cd</span> /program/directory
 $ python app.py
 </pre></div>
-<ul>
-<li>When  the program starts, observe the host IP and port number <span style="background-color: black; color: yellow;"> &nbsp; highlighted in yellow&nbsp; </span>, as these will be used in the browser to view the scoreboard.</li>
-</ul>
+<p>When  the program starts, observe the host IP and port number <span style="background-color: black; color: yellow;"> &nbsp; highlighted in yellow&nbsp; </span>, as these will be used in the browser to view the scoreboard.</p>
 <p><img src="startup.png" alt="startup screen"></p>
 <p>2) Open your internet browser - Firefox by design</p>
 <ul>

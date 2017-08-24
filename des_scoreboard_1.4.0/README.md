@@ -36,9 +36,9 @@ If a player is no longer available, or no longer wants to participate, click the
 
 ## DESIGN
 ---
-The flow diagram below illustrates the program's design and logic.
-<br>
-![scoreboard design](./readme/flow_scoreboard.png)
+The flow diagram below illustrates the program's design and logic.  
+
+![scoreboard design](flow_scoreboard.png)
 
 
 
@@ -51,11 +51,12 @@ Follow the steps below to start the scoreboard:
 $ cd /program/directory
 $ python app.py
 ```
-   + When  the program starts, observe the host IP and port number <span style="background-color: black; color: yellow;"> &nbsp; highlighted in yellow&nbsp; </span>, as these will be used in the browser to view the scoreboard.
+When  the program starts, observe the host IP and port number <span style="background-color: black; color: yellow;"> &nbsp; highlighted in yellow&nbsp; </span>, as these will be used in the browser to view the scoreboard.
 
-![startup screen](./readme/startup.png)
+![startup screen](startup.png)
 
 2) Open your internet browser - Firefox by design
    + In the address bar, enter the IP and port number as observed in the step above
 
 3) <span style="color: #777;">OPTIONAL:</span> run your browser in full-screen mode by pressing `F11`
+
