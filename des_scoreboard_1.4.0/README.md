@@ -38,7 +38,7 @@ If a player is no longer available, or no longer wants to participate, click the
 ---
 The flow diagram below illustrates the program's design and logic.
 <br>
-![scoreboard design](flow_scoreboard.png)
+![scoreboard design](./readme/flow_scoreboard.png)
 
 
 
@@ -53,7 +53,7 @@ $ python app.py
 ```
    + When  the program starts, observe the host IP and port number <span style="background-color: black; color: yellow;"> &nbsp; highlighted in yellow&nbsp; </span>, as these will be used in the browser to view the scoreboard.
 
-![startup screen](startup.png)
+![startup screen](./readme/startup.png)
 
 2) Open your internet browser - Firefox by design
    + In the address bar, enter the IP and port number as observed in the step above
