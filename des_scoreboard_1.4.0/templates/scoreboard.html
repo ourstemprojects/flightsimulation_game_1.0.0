@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+    <head>
+        <title>SCOREBOARD</title>
+        <meta http-equiv='refresh' content='2'/>
+        <link rel='stylesheet' type='text/css' href='../static/styles/styles.css'/>
+        <!-- STORE JS SCRIPTS HERE TO IMPROVE PAGE LOADING TIME -->
+        <script>
+            <!-- FUNCTION USED TO UPDATE THE COLOUR AND FONT OF THE QUEUED STATUS FIELD -->
+            function updateStatusColour() {
+
+                var cells = document.getElementById("queue").getElementsByTagName("a");
+
+                <!-- LOOP THROUGH EACH <a> TAG -->
+                for (var i = 0; i < cells.length; i++) {
+                    <!-- TEST VALUE OF CELL -->
+                    if (cells[i].innerHTML == 'PLAYING') {
+                        <!-- UPDATE FONT -->
+                        cells[i].style.color        = '#00afd5';
+                        cells[i].style.fontWeight   = 'bold';
+                        cells[i].style.fontSize =   '1.2em';
+                    }
+                }
+            }
+
+            <!-- FUNCTION USED TO PROMPT IF A PLAYER SHOULD BE DELETED -->
+            function promptBeforeDelete(alias) {
+
+            <!-- GET USER REPLY -->
+                var reply = confirm('Are you sure you want to delete: ' + alias);
+
+                <!-- TEST REPLY -->
+                if (reply) {
+                    <!-- LOAD PYTHON player_delete() FUNCTION PASSING ALIAS -->
+                    window.location.href = "/player_delete?alias=" + alias;
+                }
+            }
+        </script>
+    </head>
+
+    <body>
+        <!-- OUTER WRAPPER -->
+        <div class='wrapper'>
+            <!-- HEADER -->
+            <div class='header'>
+                <!-- <h1>[HEADER HERE]</h1> -->
+                <img class='img-banner' src='../static/images/engine4.png'/>
+                <img class='img-logo' src='../static/images/default_logo.png'/>
+            </div>
+
+            <!-- PLAYER CONTAINER -->
+            <div class='cont-player'>
+                <!-- NOW PLAYING -->
+                <div class='cont-player-left'>
+                    <div class='cont-player-title font-title'>
+                        NOW PLAYING
+                    </div>
+                    <div class='cont-player-content'>
+                        <table>
+                            <tr class='player'>
+                                <td class='player-name no-border'>{{ data_playing['name'] }}</td>
+                                <td class='no-border'><img height='200px' width='200px' src="data:;base64,{{ data_playing['avatar'] }}"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!-- PLAYER RESULTS -->
+                <div class='cont-player-right'>
+                    <!-- <div class='cont-player-title font-title'> -->
+                        <!-- RESULTS FOR: [player name] -->
+                    <!-- </div> -->
+                    <div class='cont-player-content'>
+                        <img class='img-profile' src='../static/images/profile.png'/>
+                    </div>
+                </div>
+            </div>
+            <!-- PLAYER CONTAINER END -->
+
+            <!-- SCOREBOARD CONTAINER -->
+            <div class='cont-queue'>
+                <!-- QUEUE -->
+                <div class='cont-queue-left'>
+                    <div class='cont-queue-title font-title'>
+                        THE QUEUE
+                    </div>
+                    <div class='cont-queue-content'>
+                        <table id='queue'>
+                            <thead class='queue'>
+                                <tr>
+                                    {% for col in columns_queue %}
+                                        <th>{{ col }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data_queue %}
+                                    <tr>
+                                        <td><a href="{{ url_for('player_playing', alias=row['name']) }}">{{ row['status'] }}</a></td>
+                                        <td><a href="{{ url_for('player_move', alias=row['name']) }}">{{ row['name'] }}</a></td>
+                                        <td><a href="javascript:promptBeforeDelete(alias='{{ row['name'] }}');"><img height='40px' width='40px' src="data:;base64,{{ row['avatar'] }}"/></a></td>
+                                    </tr>
+                                {% endfor %}
+                                <!-- UPDATE STATUS FONT COLOUR -->
+                                <script>updateStatusColour()</script>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- SCOREBOARD -->
+                <div class='cont-queue-right'>
+                    <div class='cont-queue-title font-title'>
+                        THE SCOREBOARD
+                    </div>
+                    <div class='cont-queue-content'>
+                        <table class='queue'>
+                            <thead class='queue'>
+                                <tr>
+                                    <th>RANK</th>
+                                    <th>SCORE</th>
+                                    {% for col in columns_score[2:] %}
+                                        <th>{{ col }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data_score %}
+                                    <tr>
+                                        <td>{{ row['rank'] }}</td>
+                                        <td>{{ row['gamehighscore'] }}</td>
+                                        <td>{{ row['name'] }}</td>
+                                        <td><img height='40px' width='40px' src="data:;base64,{{ row['avatar'] }}"/></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- SCOREBOARD CONTAINER END -->
+        </div>
+        <!-- OUTER WRAPPER END -->
+
+        <!-- SITE FOOTER -->
+        <div class='site-footer-wrapper'>
+            <div class='site-footer-content'>
+                Powered by: &nbsp; Raspberry Pi &nbsp; | &nbsp; Linux &nbsp; | &nbsp; MySQL &nbsp; | &nbsp; Python / Flask &nbsp; | &nbsp; Firefox &nbsp;
+            </div>
+        </div>
+        <!-- SITE FOOTER END -->
+    </body>
+</html>

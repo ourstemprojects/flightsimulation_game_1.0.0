@@ -1,0 +1,14 @@
+{
+      "qry_create_gamedata"         :   "db_resource/qry_create_gamedata.sql"
+    , "qry_count_playing"           :   "db_resource/qry_count_playing.sql"
+    , "qry_getdata_now_playing"     :   "db_resource/qry_getdata_now_playing.sql"
+    , "qry_getdata_queue"           :   "db_resource/qry_getdata_queue.sql"
+    , "qry_getdata_scoreboard"      :   "db_resource/qry_getdata_scoreboard.sql"
+    , "qry_player_delete"           :   "db_resource/qry_player_delete.sql"
+    , "qry_player_move"             :   "db_resource/qry_player_move.sql"
+    , "qry_player_playing"          :   "db_resource/qry_player_playing.sql"
+    , "host"                        :   "127.0.0.1"
+    , "port"                        :   5001
+    , "app_debug"                   :   "True"
+    , "app_threaded"                :   "True"
+}
