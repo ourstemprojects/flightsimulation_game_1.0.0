@@ -1,8 +1,0 @@
-
--- COUNT NUMBER OF PLAYERS WITH A 'PLAYING' STATUS
-SELECT
-    COUNT(*)
-FROM
-    avatardata
-WHERE
-    status = 'PLAYING'
