@@ -43,16 +43,13 @@ WAIT_DELAY = "delay"
 DISPLAY_IMG = "img"
 DISPLAY_TXT = "txt"
 
-# signal completion of global code
-print "global code in %s: complete" % sys.argv[0]
-
 #
 #
 # the purpose of this function is to dump the data to a disc filename as a binary image
 def write_file(data, filename):
     try:
 
-        print "write_file(): data=%s" % data
+        #print "write_file(): data=%s" % data
         print "write_file(): filename=%s" % filename
         
         with open(filename, 'wb') as f:
@@ -75,8 +72,7 @@ def load_image(thefile):
     # loads an image, prepares it for play
     try:
         
-        print "load_image(): thefile=%s" % thefile
-        
+        print "load_image(): thefile=%s" % thefile        
         thefile = os.path.join(os.path.dirname(sys.argv[0]), "", thefile)
         surface = pygame.image.load(thefile)
     #endtry
@@ -192,7 +188,7 @@ def display_text_and_wait(hWnd, thegpio, theavatarname, thefontbackcolour, thefo
 
             if (thegpiopin != 0):
 
-                print "display_text_and_wait(): waiting for GPIO[%d] pin to go logic 0" % thegpiopin
+                print "waiting for GPIO[%d] pin to go logic 0" % thegpiopin
                 
                 # Wait for the GPIO pin to toggle low button to be pushed
                 start = True
@@ -200,6 +196,11 @@ def display_text_and_wait(hWnd, thegpio, theavatarname, thefontbackcolour, thefo
                     start = thegpio.input(thegpiopin)            
                     time.sleep(0.1)
                 #while
+
+            else:
+
+                print "display_text_and_wait(): no wait state selected as both thewaitdelay and thegpiopin are zero."
+                
             #endif
         #endif
 
@@ -247,12 +248,14 @@ def display_image_and_wait(hWnd, thegpio, theavatarname, thefontbackcolour, thef
         x = (hWnd.get_width() / 2) - (theimage.get_width() / 2)
         y = (hWnd.get_height() / 2) - (theimage.get_height() / 2)        
 
+        # debug print
         print "display_image_and_wait(): x=%d, y=%d" % (x, y)        
         print "display_image_and_wait(): theavatarnameimage.get_height()=%d" % theavatarnameimage.get_height()
         print "display_image_and_wait(): theavatarnameimage.get_width()=%d" % theavatarnameimage.get_width()
         print "display_image_and_wait(): theavatarimage.get_height()=%d" % theavatarimage.get_height()
         print "display_image_and_wait(): theavatarimage.get_width()=%d" % theavatarimage.get_width()
 
+        # draw the image as follows (outer border in fontforecolour, inner boarder in frontbackcolour to form frame, then contents
         left = x - 3
         top = y - 3
         width = theavatarimage.get_width() + theavatarnameimage.get_width() + 6
@@ -352,6 +355,8 @@ def display_item_then_wait(thehwnd, thegpio, theavatarname, thefontbackcolour, t
 def display_background(thehwnd, thebannerimagefilename, thebackgroundimagefilename):
 
     print "display_background(): thehwnd=%s" % thehwnd
+    print "display_background(): thehwnd.get_width=%d" % thehwnd.get_width()
+    print "display_background(): thehwnd.get_height=%d" % thehwnd.get_height()
     print "display_background(): thebannerimagefilename=%s" % thebannerimagefilename
     print "display_background(): thebackgroundimagefilename=%s" % thebackgroundimagefilename
 
@@ -359,15 +364,22 @@ def display_background(thehwnd, thebannerimagefilename, thebackgroundimagefilena
 
         # load the banner
         theimage = load_image(thebannerimagefilename)
-        pygame.transform.scale(theimage, (thehwnd.get_width(),BANNERHEIGHT) )
+        theimage = pygame.transform.scale(theimage, (thehwnd.get_width(), BANNERHEIGHT) )
         thehwnd.blit( theimage, (0, 0) )
         display.flip()
 
+        print "display_background(): theimage.get_width=%d" % theimage.get_width()
+        print "display_background(): theimage.get_height=%d" % theimage.get_height()
+
         # load the background
         theimage = load_image(thebackgroundimagefilename)
-        pygame.transform.scale(theimage, (thehwnd.get_width(),WINDOWHEIGHT) )
+        theimage = pygame.transform.scale(theimage, (thehwnd.get_width(), WINDOWHEIGHT) )
         thehwnd.blit( theimage, (0, BANNERHEIGHT) )
         display.flip()
+
+        print "display_background(): theimage.get_width=%d" % theimage.get_width()
+        print "display_background(): theimage.get_height=%d" % theimage.get_height()
+        
     #endtry
         
     except Exception, e:
@@ -486,6 +498,11 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
         backforecolour = [0, 0, 0]
         thestr = theconfigparser.get('general', 'fontbackcolour')
         fontbackcolour = thestr.split(',')
+
+        # load the aircraft sprite and resize to 32x32
+        aircraftimagefilename = theconfigparser.get('general', 'aircraftimagefilename')
+        theaircraftimage = load_image(aircraftimagefilename)
+        theaircraftimage = pygame.transform.scale(theaircraftimage, (32,32) )
         
         #create the connection to the database
         db = MySQLdb.connect(host=hostname, user=username, passwd=password, db=dbname)
@@ -493,7 +510,7 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
         #create a cursor for the select
         cur = db.cursor()
         
-        # create a new row in the database and commit
+        # get the name of the player and avatar image from the databasde
         sqlcommandstr = "SELECT rownum,name,avatar FROM %s.%s WHERE status = 'PLAYING' ORDER BY queueposition ASC LIMIT 1" % (dbname, avatartablename)
         print "do_game(): sqlcommandstr=%s" % sqlcommandstr
         cur.execute(sqlcommandstr)
@@ -568,6 +585,9 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
         # Main loop that waits for the the call back handler to count then saves to array and dumps to screen
         loopcount = 0
         revcount = 0
+
+        # grab the screen
+        wincopy = thehwnd.copy()
                 
         while loopcount < maxsamples :
 
@@ -578,6 +598,10 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
             else:
                 time.sleep(timeinternalseconds)
             #endif
+
+            # restore the captured image from before the aircraft sprite was painted and after the last bar was drawn
+            thehwnd.blit(wincopy, (0, 0))
+            display.flip()        
                 
             # clip the revcount if it exceeds what can be drawn on the screen
             if revcount <= maxvalue:
@@ -603,7 +627,14 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
             print "do_game(): loopcount=%d; maxsamples=%d; myPulseData[%d]=%d" % (loopcount, maxsamples, loopcount, myPulseData[loopcount])
 
             # reset counters and move to next sample        
-            loopcount += 1        
+            loopcount += 1
+
+            # grab the screen then print the aircraft sprite
+            wincopy = thehwnd.copy()
+            x = left
+            y = top - theaircraftimage.get_height()
+            thehwnd.blit ( theaircraftimage, (x , y) )
+            display.flip()
             
         #endwhile
 
