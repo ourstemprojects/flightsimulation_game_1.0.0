@@ -5,10 +5,8 @@ The Digital Engine Simulator application is controlled via the Scoreboard applic
 # Launching the Application
 The following steps are to be carried out on the Raspberry Pi.
 To launch the Digital Engine Simulator application, simply double-click the Launch Pi.sh icon on the Desktop.  When prompted click on “Execute”.
-If this does not work correctly, then you can launch the application from the command prompt by typing:-
-<br>
-> cd ~/des_profilegenerator
-<br>
+If this does not work correctly, then you can launch the application from the command prompt by typing:-<br>
+> cd ~/des_profilegenerator <br>
 > sudo python digitalenginesimulator.py digitalenginesimulator.cfg
 <br>
 
