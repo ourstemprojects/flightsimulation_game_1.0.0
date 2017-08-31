@@ -1,5 +1,5 @@
 
-## Application Overview
+# Application Overview
 The Digital Engine Simulator application is controlled primarily via the Scoreboard application
 
 # Launching the Application
@@ -19,6 +19,7 @@ At the end of the 90 seconds the game ends as their score is displayed for 10 se
 The ESC key is used to exit the application and close when it is waiting for a player.
 
 # Software Design
+The design for the software is shown in the flow diagram below, the code is written entirely in python as a single application
 
 <a href="digitalenginesimulator.png" target="_blank"><img src="digitalenginesimulator.png" alt="profile generator design" style="max-width:100%;"></a></p>
 
@@ -27,3 +28,10 @@ Python 2.7.12<br>
 GPIO python library<br>
 pygame python library 1.91<br>
 MySQLlib python library 1.37<br>
+
+# Going further
+1] Implementation using classes?<br>
+2] Animated banners and removal of temporary avatar files?<br>
+3] Dynamic display of actual revolutions in real time?<br>
+4] Guage to tell the player whether to peddle faster or slower?<br>
+
