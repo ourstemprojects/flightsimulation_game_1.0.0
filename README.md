@@ -18,14 +18,14 @@ The design for the software is shown in the flow diagram below, the code is writ
 
 <a href="digitalenginesimulator.png" target="_blank"><img src="digitalenginesimulator.png" alt="profile generator design" style="max-width:100%;"></a></p>
 
-## Technology Stack
+# Technology Stack
 Python 2.7.12<br>
 GPIO python library<br>
 pygame python library 1.91<br>
 MySQLlib python library 1.37<br>
 
-## Going further
-# 1 Implementation using classes?<br>
-# 2 Animated banners and removal of temporary avatar files?<br>
-# 3 Dynamic display of actual revolutions in real time?<br>
-# 4 Guage to tell the player whether to peddle faster or slower?<br>
+# Going further
+1. Implementation using classes?<br>
+2. Animated banners and removal of temporary avatar files?<br>
+3. Dynamic display of actual revolutions in real time?<br>
+4. Guage to tell the player whether to peddle faster or slower?<br>
