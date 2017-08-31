@@ -22,3 +22,5 @@ Function keys are used to control the behaviour of the application.
 ESC = Exit the application and close.
 
 <h1>Software Design</h1>
+
+<a href="digitalenginesimulator.png" target="_blank"><img src="digitalenginesimulator.png" alt="profile generator design" style="max-width:100%;"></a></p>
