@@ -7,8 +7,9 @@ The following steps are to be carried out on the Raspberry Pi.
 To launch the Digital Engine Simulator application, simply double-click the Launch Pi.sh icon on the Desktop.  When prompted click on “Execute”.
 If this does not work correctly, then you can launch the application from the command prompt by typing:-<br>
 > cd ~/des_profilegenerator <br>
-> sudo python digitalenginesimulator.py digitalenginesimulator.cfg
-### Note: sudo is required as root access is needed to access the GPIO 
+> sudo python digitalenginesimulator.py digitalenginesimulator.cfg<br>
+<br>
+> Note: sudo is required as root access is needed to access the GPIO 
 
 # Application Operation
 The application will wait until a player is selected for play by the Dashboard application.
@@ -23,7 +24,7 @@ The ESC key is used to exit the application and close when it is waiting for a p
 <a href="digitalenginesimulator.png" target="_blank"><img src="digitalenginesimulator.png" alt="profile generator design" style="max-width:100%;"></a></p>
 
 # Technology Stack
-Python 2.7.12
-GPIO python library
-pygame python library 1.91
-MySQLlib python library 1.37
+Python 2.7.12<br>
+GPIO python library<br>
+pygame python library 1.91<br>
+MySQLlib python library 1.37<br>
