@@ -1,18 +1,14 @@
 #!/usr/bin/python
 try:
-    import sys
-    from Tkinter import *
-    import tkMessageBox
-    import Tkinter as ttk
-    from ttk import *    
+    import sys 
     from pygame import *
     import pygame
     import time
     import os    
     import random
     import ConfigParser
-    import MySQLdb
     import DebugLogger as d
+    import MySQLdb
     import RPi.GPIO as g
 #endtry
     
@@ -21,7 +17,7 @@ except Exception, e:
         d.debug_print("loading testRPiGPIO instead of RPi.GPIO")
         import testRPiGPIO as g
     else:
-        print str(e)
+        d.debug_print("FATAL error loading imports '%s'" % str(e))
         exit(1)
     #endif
 #endtry
@@ -516,10 +512,18 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
         thestr = theconfigparser.get('general', 'fontbackcolour')
         fontbackcolour = thestr.split(',')
 
-        # load the aircraft sprite and resize to 32x32
-        aircraftimagefilename = theconfigparser.get('general', 'aircraftimagefilename')
-        theaircraftimage = load_image(aircraftimagefilename)
-        theaircraftimage = pygame.transform.scale(theaircraftimage, (32,32) )
+        # load the aircraft sprites and resize to 32x32
+        aircraftclimbimagefilename = theconfigparser.get('general', 'aircraftclimbimagefilename')
+        aircraftclimbimage = load_image(aircraftclimbimagefilename)
+        aircraftclimbimage = pygame.transform.scale(aircraftclimbimage, (32,32) )
+        
+        aircraftlevelimagefilename = theconfigparser.get('general', 'aircraftlevelimagefilename')
+        aircraftlevelimage = load_image(aircraftlevelimagefilename)
+        aircraftlevelimage = pygame.transform.scale(aircraftlevelimage, (32,32) )
+        
+        aircraftdesceimagefilename = theconfigparser.get('general', 'aircraftdesceimagefilename')
+        aircraftdesceimage = load_image(aircraftdesceimagefilename)
+        aircraftdesceimage = pygame.transform.scale(aircraftdesceimage, (32,32) )
         
         #create the connection to the database
         db = MySQLdb.connect(host=hostname, user=username, passwd=password, db=dbname)
@@ -611,7 +615,10 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
             # if fakefeddling is configured, match the actual profile with a random difference and wait of 1/4 seconds, otherwaise wait a second
             if fakepeddling == True: 
                 revcount = theProfileData[loopcount] + ( 2 - random.randint(0, 4) )
-                time.sleep(0.1)
+                if revcount < 0:
+                    revcount = 0
+                #endif
+                time.sleep(0.25)
             else:
                 time.sleep(timeinternalseconds)
             #endif
@@ -643,15 +650,41 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
             # debug print
             d.debug_print("do_game(): loopcount=%d; maxsamples=%d; myPulseData[%d]=%d" % (loopcount, maxsamples, loopcount, myPulseData[loopcount]))
 
-            # reset counters and move to next sample        
-            loopcount += 1
-
             # grab the screen then print the aircraft sprite
             wincopy = thehwnd.copy()
             x = left
-            y = top - theaircraftimage.get_height()
-            thehwnd.blit ( theaircraftimage, (x , y) )
-            display.flip()
+
+            # work ou which aircraft sprite to show based on the difference between the current pulse count and the last
+            if loopcount > 0:
+
+                if myPulseData[loopcount] > myPulseData[loopcount-1]:
+
+                    y = top - aircraftclimbimage.get_height()
+                    thehwnd.blit ( aircraftclimbimage, (x , y) )
+                    display.flip()
+                    
+                elif myPulseData[loopcount] < myPulseData[loopcount-1]:
+
+                    y = top - aircraftdesceimage.get_height()
+                    thehwnd.blit ( aircraftdesceimage, (x , y) )
+                    display.flip()
+                    
+                else:
+
+                    y = top - aircraftlevelimage.get_height()
+                    thehwnd.blit ( aircraftlevelimage, (x , y) )
+                    display.flip()                    
+
+            else:
+
+                y = top - aircraftlevelimage.get_height()
+                thehwnd.blit ( aircraftlevelimage, (x , y) )
+                display.flip()
+
+            #endif
+        
+            # reset counters and move to next sample        
+            loopcount += 1            
             
         #endwhile
 
