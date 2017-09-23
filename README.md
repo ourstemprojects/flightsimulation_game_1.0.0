@@ -6,7 +6,7 @@ The Digital Engine Simulator application is controlled primarily via the Scorebo
 The following steps are to be carried out on the Raspberry Pi.
 To launch the Digital Engine Simulator application, simply double-click the Launch Pi.sh icon on the Desktop.  When prompted click on “Execute”.
 If this does not work correctly, then you can launch the application from the command prompt by typing:-<br>
-> cd ~/des_profilegenerator <br>
+> cd ~/des_digitalenginesimulator <br>
 > sudo python digitalenginesimulator.py digitalenginesimulator.cfg <br> <br>
 > Note: sudo is required as root access is needed to access the GPIO 
 
