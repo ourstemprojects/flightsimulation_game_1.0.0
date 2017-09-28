@@ -1,5 +1,7 @@
 #!/usr/bin/python
 try:
+    import DebugLogger as d
+    from calc import calculate_highscore
     import sys 
     from pygame import *
     import pygame
@@ -7,8 +9,8 @@ try:
     import os    
     import random
     import ConfigParser
-    import DebugLogger as d
     import MySQLdb
+    import json
     import RPi.GPIO as g
 #endtry
     
@@ -23,7 +25,7 @@ except Exception, e:
 #endtry
 
 # system wide constants
-WINDOWHEIGHT = 400
+WINDOWHEIGHT = 630
 BANNERHEIGHT = 100
 SINGLEPULSEBARHEIGHT = 20
 PROGRESSBARHEIGHT = 6
@@ -50,7 +52,12 @@ def error_handler(functionname, errortext):
     g.cleanup()
     exit(1)
 #enddef
-          
+
+#FUNCTION USED TO READ THE CALC CONFIG FILE
+def setup_calc_config():
+    
+    return json.loads(open('config.json').read())
+           
 #
 #
 # the purpose of this function is to dump the data to a disc filename as a binary image
@@ -447,41 +454,42 @@ def check_for_player(thehwnd, theconfigparser):
 #
 #
 # the purpose of this function is to calculate the player score based on the 'target' and 'actual' data
-def calculate_highscore(target, actual):
-
-    d.debug_print("calculate_highscore(): target=%s" % target)
-    d.debug_print("calculate_highscore(): actual=%s" % actual)
-    d.debug_print("calculate_highscore(): len(target)=%d; len(actual)=%d" % (len(target), len(actual)))
-
-    try:
-
-        maxscore = 0
-        thescore = 0
-
-        # calculate the score by adding the differences between the target[i] and actual[i]
-        # the score return is the maximum possible score mimus the total differences
-        for i in range(len(target)):
-            maxscore += target[i]
-            thescore += abs(target[i] - actual[i])
-        #endfor
-
-        d.debug_print("calculate_highscore(); maxscore=%d; thescore=%d" % (maxscore, thescore))
-
-        thehighscore = (maxscore - thescore)
-
-        # prevent minus scores being returned
-        if thehighscore < 0:
-            thehighscore = 0
-        #end if
-
-        return thehighscore
-    #endtry        
-
-    except Exception, e:
-        error_handler("calculate_highscore", str(e))
-    #endexcept
-    
-#enddef
+# JB: THIS FUNCTION HAS BEEN REPLACED BY THE calc.py MODULE
+#def calculate_highscore(target, actual):
+#
+#    d.debug_print("calculate_highscore(): target=%s" % target)
+#    d.debug_print("calculate_highscore(): actual=%s" % actual)
+#    d.debug_print("calculate_highscore(): len(target)=%d; len(actual)=%d" % (len(target), len(actual)))
+#
+#    try:
+#
+#        maxscore = 0
+#        thescore = 0
+#
+#        # calculate the score by adding the differences between the target[i] and actual[i]
+#        # the score return is the maximum possible score mimus the total differences
+#        for i in range(len(target)):
+#            maxscore += target[i]
+#            thescore += abs(target[i] - actual[i])
+#        #endfor
+#
+#        d.debug_print("calculate_highscore(); maxscore=%d; thescore=%d" % (maxscore, thescore))
+#
+#        thehighscore = (maxscore - thescore)
+#
+#        # prevent minus scores being returned
+#        if thehighscore < 0:
+#            thehighscore = 0
+#        #end if
+#
+#        return thehighscore
+#    #endtry        
+#
+#    except Exception, e:
+#        error_handler("calculate_highscore", str(e))
+#    #endexcept
+#    
+##enddef
 #
 # the purpose of this function is the main game, the function starts by drawing the target rpm profile from the configuration file
 # the function then displays banners to guide the user before then pulse couting and finally dumping the data to binary file and the console
@@ -594,7 +602,7 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
         #endfor
 
         # determine whether a fake oeddle is needed
-        fakepeddling=theconfigparser.getboolean('profiledata', 'fakepeddling')
+        fakepeddling=theconfigparser.getboolean('testing', 'fakepeddling')
 
         d.debug_print("do_game(): fakepeddling=%s" % fakepeddling)
         d.debug_print("do_game(): maxvalue=%d" % maxvalue)
@@ -614,11 +622,16 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
 
             # if fakefeddling is configured, match the actual profile with a random difference and wait of 1/4 seconds, otherwaise wait a second
             if fakepeddling == True: 
-                revcount = theProfileData[loopcount] + ( 2 - random.randint(0, 4) )
+                #revcount = theProfileData[loopcount] + ( 1 - random.randint(0, 2) )
+                #JB: USE CONFIG FOR TESTING OFFSET
+		offset = theconfigparser.getint('testing', 'offset')
+		revcount = theProfileData[loopcount] + (random.randint(-1 * offset, offset))
                 if revcount < 0:
                     revcount = 0
                 #endif
-                time.sleep(0.25)
+                #time.sleep(timeinternalseconds / 10.0)
+		#JB: SPEED UP TESTING BY DIVIDING SLEEP TIME BY (N) 
+                time.sleep(timeinternalseconds / theconfigparser.getint('testing', 'sleep_div'))
             else:
                 time.sleep(timeinternalseconds)
             #endif
@@ -691,22 +704,25 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
         d.debug_print("do_game(): game finished, calculating score")
 
         # calculate the high score
-        thehighscore = calculate_highscore(theProfileData, myPulseData)
+#        thehighscore = calculate_highscore(theProfileData, myPulseData)
+        thehighscore = calculate_highscore(target=theProfileData, actual=myPulseData)
 
         # update the score and the status
-        sqlcommandstr = "UPDATE %s.%s SET gamehighscore='%d',status='COMPLETE',completiontime='%d' WHERE rownum='%s'" % (dbname, avatartablename, thehighscore, time.time(), rownum)
+        sqlcommandstr = "UPDATE %s.%s SET gamehighscore='%f',status='COMPLETE',completiontime='%d' WHERE rownum='%s'" % (dbname, avatartablename, thehighscore, time.time(), rownum)
         d.debug_print("do_game(): sqlcommandstr=%s" % sqlcommandstr)
         cur.execute(sqlcommandstr)
         db.commit()
 
         # dump the game date and high score
-        sqlcommandstr ="INSERT INTO %s.%s (name,actualprofiledata,targetprofiledata,gamehighscore,completiontime) VALUES ('%s','%s','%s', %d, %d)" % (dbname, highscoretablename, playername, myPulseData, theProfileData, thehighscore, time.time())
+        sqlcommandstr ="INSERT INTO %s.%s (name,actualprofiledata,targetprofiledata,gamehighscore,completiontime) VALUES ('%s','%s','%s', %f, %d)" % (dbname, highscoretablename, playername, myPulseData, theProfileData, thehighscore, time.time())
         d.debug_print("do_game(): sqlcommandstr=%s" % sqlcommandstr)
         cur.execute(sqlcommandstr)
         db.commit()
 
         # announce complete, show the score and wait ten seconds
-        display_item_then_wait(thehwnd, thegpio, playername, fontbackcolour, fontforecolour, DISPLAY_TXT, "finished! your score is %d" % thehighscore, WAIT_DELAY, 10)
+#        display_item_then_wait(thehwnd, thegpio, playername, fontbackcolour, fontforecolour, DISPLAY_TXT, "finished! your score is %f" % thehighscore, WAIT_DELAY, 10)
+        #JB: MODIFIED TO USE NUMBER OF DECIMAL PLACES IN CONFIG FILE
+        display_item_then_wait(thehwnd, thegpio, playername, fontbackcolour, fontforecolour, DISPLAY_TXT, "finished! your score is %s" % round(thehighscore, CFG['score_decimal']), WAIT_DELAY, 10)
 
         # delete the avatar image
         os.remove(filename)
@@ -743,12 +759,16 @@ def do_screensaver(thehwndwin):
 # the purpose of this function is the entry point for the software, it loads config varialbles, starts pygame and GPIO before invoking the main loop
 def main(configfilename):
 
-    try:
+    global CFG
 
+    try:
+        
         d.debug_print("main(): configfilename=%s" % configfilename)
 
         # read the config file into the object
         config.read(configfilename)
+        #JB: READ CALC CONFIG FILE
+        CFG = setup_calc_config()
 
         # read the application variables
         startbuttongpiopin = config.getint('general', 'startbuttongpiopin')
