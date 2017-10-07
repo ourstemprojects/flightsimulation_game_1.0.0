@@ -24,12 +24,21 @@ except Exception, e:
     #endif
 #endtry
 
+#
 # system wide constants
-WINDOWHEIGHT = 630
+#
+
+# the height of the title caption at the top of the window
+CAPTIONHEIGHT = 35
+
+# the height of the banner (the image is re-sized to match this height)
 BANNERHEIGHT = 100
+
+# The height of a single pulse (sample)
 SINGLEPULSEBARHEIGHT = 20
+
+# The height of the GREEN/GRAY progress bar at the top of the screen
 PROGRESSBARHEIGHT = 6
-MAXSAMPLEVALUE = 20
 
 # Setup the configuration parser and fomt
 config = ConfigParser.ConfigParser()
@@ -55,8 +64,14 @@ def error_handler(functionname, errortext):
 
 #FUNCTION USED TO READ THE CALC CONFIG FILE
 def setup_calc_config():
-    
-    return json.loads(open('config.json').read())
+    try:
+        
+        return json.loads(open('config.json').read())
+    #endtry
+    except Exception, e:
+        error_handler("setup_calc_config", str(e))
+    #endexcept        
+#enddef
            
 #
 #
@@ -76,7 +91,6 @@ def write_file(data, filename):
     except Exception, e:
         error_handler("write_file", str(e))
     #endexcept        
-
 #endef
 
 #
@@ -336,7 +350,6 @@ def display_item_then_wait(thehwnd, thegpio, theavatarname, thefontbackcolour, t
         d.debug_print("display_item_then_wait(): thefontforecolour=%s" % str(thefontforecolour))
             
         if thedisplaytype == DISPLAY_IMG:
-
             if thewaittype == WAIT_GPIO:
                 d.debug_print("display_item_then_wait(): display_image_and_wait(hWnd, thegpio, thefilename, 0, thewaititem, theavatarname)")
                 display_image_and_wait(thehwnd, thegpio, theavatarname, thefontbackcolour, thefontforecolour, thefilename, 0, thewaititem)
@@ -358,7 +371,6 @@ def display_item_then_wait(thehwnd, thegpio, theavatarname, thefontbackcolour, t
             if thewaittype == WAIT_GPIO:
                 d.debug_print("display_item_then_wait(): display_text_and_wait(hWnd, thegpio, theavatarname, thetextmessage, 0, thewaititem)")
                 display_text_and_wait(thehwnd, thegpio, theavatarname, thefontbackcolour, thefontforecolour, thedisplayitem, 0, thewaititem)
-                #exit(0)
             #endif
         #endif
     #endtry
@@ -382,7 +394,7 @@ def display_background(thehwnd, thebannerimagefilename, thebackgroundimagefilena
 
     try:
 
-        # load the banner
+        # load the banner, resizing to fit into the BANNERHEIGHT
         theimage = load_image(thebannerimagefilename)
         theimage = pygame.transform.scale(theimage, (thehwnd.get_width(), BANNERHEIGHT) )
         thehwnd.blit( theimage, (0, 0) )
@@ -391,9 +403,9 @@ def display_background(thehwnd, thebannerimagefilename, thebackgroundimagefilena
         d.debug_print("display_background(): theimage.get_width=%d" % theimage.get_width())
         d.debug_print("display_background(): theimage.get_height=%d" % theimage.get_height())
 
-        # load the background
+        # load the background, resizing to fit into the remaining space
         theimage = load_image(thebackgroundimagefilename)
-        theimage = pygame.transform.scale(theimage, (thehwnd.get_width(), WINDOWHEIGHT) )
+        theimage = pygame.transform.scale(theimage, (thehwnd.get_width(), thehwnd.get_height()-BANNERHEIGHT) )
         thehwnd.blit( theimage, (0, BANNERHEIGHT) )
         display.flip()
 
@@ -451,45 +463,6 @@ def check_for_player(thehwnd, theconfigparser):
     #endexcept
 #enddef
 
-#
-#
-# the purpose of this function is to calculate the player score based on the 'target' and 'actual' data
-# JB: THIS FUNCTION HAS BEEN REPLACED BY THE calc.py MODULE
-#def calculate_highscore(target, actual):
-#
-#    d.debug_print("calculate_highscore(): target=%s" % target)
-#    d.debug_print("calculate_highscore(): actual=%s" % actual)
-#    d.debug_print("calculate_highscore(): len(target)=%d; len(actual)=%d" % (len(target), len(actual)))
-#
-#    try:
-#
-#        maxscore = 0
-#        thescore = 0
-#
-#        # calculate the score by adding the differences between the target[i] and actual[i]
-#        # the score return is the maximum possible score mimus the total differences
-#        for i in range(len(target)):
-#            maxscore += target[i]
-#            thescore += abs(target[i] - actual[i])
-#        #endfor
-#
-#        d.debug_print("calculate_highscore(); maxscore=%d; thescore=%d" % (maxscore, thescore))
-#
-#        thehighscore = (maxscore - thescore)
-#
-#        # prevent minus scores being returned
-#        if thehighscore < 0:
-#            thehighscore = 0
-#        #end if
-#
-#        return thehighscore
-#    #endtry        
-#
-#    except Exception, e:
-#        error_handler("calculate_highscore", str(e))
-#    #endexcept
-#    
-##enddef
 #
 # the purpose of this function is the main game, the function starts by drawing the target rpm profile from the configuration file
 # the function then displays banners to guide the user before then pulse couting and finally dumping the data to binary file and the console
@@ -572,6 +545,7 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
             # read profile data from config file and compute the target score
             theProfileData[i] = theconfigparser.getint('profiledata', '%d' % i)
 
+            # calculate the maximum value based on the profile
             if theProfileData[i] > maxvalue:
                 maxvalue = theProfileData[i]
             #endif
@@ -579,7 +553,7 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
             # draw the data on the screen
             left = i * (thehwnd.get_width() / maxsamples)
             width = thehwnd.get_width() / maxsamples
-            height = theProfileData[i] * (WINDOWHEIGHT / SINGLEPULSEBARHEIGHT)
+            height = theProfileData[i] * ( (thehwnd.get_height() - BANNERHEIGHT) / SINGLEPULSEBARHEIGHT)
             top = thehwnd.get_height() - height
             pygame.draw.rect ( thehwnd, Color(255,0,0), Rect(left, top, width, height), 0)
             pygame.draw.rect ( thehwnd, Color(0,255,0) , Rect(left, BANNERHEIGHT, width, PROGRESSBARHEIGHT), 0) 
@@ -624,12 +598,11 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
             if fakepeddling == True: 
                 #revcount = theProfileData[loopcount] + ( 1 - random.randint(0, 2) )
                 #JB: USE CONFIG FOR TESTING OFFSET
-		offset = theconfigparser.getint('testing', 'offset')
-		revcount = theProfileData[loopcount] + (random.randint(-1 * offset, offset))
+                offset = theconfigparser.getint('testing', 'offset')
+                revcount = theProfileData[loopcount] + (random.randint(-1 * offset, offset))
                 if revcount < 0:
                     revcount = 0
                 #endif
-                #time.sleep(timeinternalseconds / 10.0)
 		#JB: SPEED UP TESTING BY DIVIDING SLEEP TIME BY (N) 
                 time.sleep(timeinternalseconds / theconfigparser.getint('testing', 'sleep_div'))
             else:
@@ -654,7 +627,7 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
             # draw the data on the screen
             left = loopcount * (thehwnd.get_width() / maxsamples)
             width = thehwnd.get_width() / maxsamples
-            height = myPulseData[loopcount] * (WINDOWHEIGHT / SINGLEPULSEBARHEIGHT)
+            height = myPulseData[loopcount] * ((thehwnd.get_height() - BANNERHEIGHT) / SINGLEPULSEBARHEIGHT)
             top = thehwnd.get_height() - height
             pygame.draw.rect ( thehwnd, Color(0,255,0), Rect(left, top, width, height), 0)
             pygame.draw.rect ( thehwnd, Color(128,128,128) , Rect(left, BANNERHEIGHT, width, PROGRESSBARHEIGHT), 0) 
@@ -704,7 +677,6 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
         d.debug_print("do_game(): game finished, calculating score")
 
         # calculate the high score
-#        thehighscore = calculate_highscore(theProfileData, myPulseData)
         thehighscore = calculate_highscore(target=theProfileData, actual=myPulseData)
 
         # update the score and the status
@@ -720,7 +692,6 @@ def do_game(thehwnd, thegpio, theconfigparser, maxsamples, startgpiopin, timeint
         db.commit()
 
         # announce complete, show the score and wait ten seconds
-#        display_item_then_wait(thehwnd, thegpio, playername, fontbackcolour, fontforecolour, DISPLAY_TXT, "finished! your score is %f" % thehighscore, WAIT_DELAY, 10)
         #JB: MODIFIED TO USE NUMBER OF DECIMAL PLACES IN CONFIG FILE
         display_item_then_wait(thehwnd, thegpio, playername, fontbackcolour, fontforecolour, DISPLAY_TXT, "finished! your score is %s" % round(thehighscore, CFG['score_decimal']), WAIT_DELAY, 10)
 
@@ -800,11 +771,13 @@ def main(configfilename):
         g.setup(int(startbuttongpiopin), g.IN)
         g.add_event_detect(int(pulsegpiopin), g.RISING, callback=increaserev)
         
-        # init pygame, set the size and caption
-
+        # init pygame, set the screen size and caption
         pygame.init()
-        win = display.set_mode((maxsamples * columnwidth, WINDOWHEIGHT + BANNERHEIGHT))
+        width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
+        height = height - CAPTIONHEIGHT
+        win = display.set_mode((width, height))
         display.set_caption("Raspberry Pi Profiling game: " + windowcaption)
+        d.debug_print("main(): width=%d; height=%d" % (width, height))
 
         # Set the font sizes
         global Font
