@@ -39,4 +39,4 @@ MySQLlib python library 1.37
 1. Implementation using classes?
 2. Animated banners and removal of temporary avatar files?
 3. Dynamic display of actual revolutions in real time?
-4. Guage to tell the player whether to peddle faster or slower?
+4. Gauge to tell the player whether to peddle faster or slower?
